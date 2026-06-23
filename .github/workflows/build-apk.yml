@@ -66,7 +66,9 @@ jobs:
           unset GRADLE_HOME 2>/dev/null || true
           export GRADLE_HOME=""
           # 构建 APK
-          JAVA_OPTS="-Dfile.encoding=UTF-8" ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk" buildozer android debug
+          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
+          export ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+          buildozer android debug
         env:
           BUILD_RUNNING_ON_CI: "1"
 
