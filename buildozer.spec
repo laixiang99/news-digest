@@ -53,7 +53,7 @@ android.manifest.android_uses_cleartext_traffic = True
 android.use_sdl2 = True
 
 # 包含的 Python 模块
-requirements = python3,flask,flask-cors,requests,beautifulsoup4,feedparser==6.1.1,kivy
+requirements = python3,flask,flask-cors,requests,beautifulsoup4,feedparser,kivy
 
 # 排除不必要的模块减小 APK 体积
 android.exclude_so = x86, x86_64
