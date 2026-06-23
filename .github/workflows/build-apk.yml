@@ -61,7 +61,7 @@ jobs:
         run: |
           # 清除缓存和降级 setuptools
           rm -rf .buildozer/android/platform/build-*
-          pip install "setuptools<72" --upgrade
+          pip install "setuptools<72" wheel --upgrade
           # 构建 APK
           buildozer android debug
         env:
