@@ -59,32 +59,10 @@ jobs:
 
       - name: 构建 APK
         run: |
-          # 先运行 buildozer 初始化 SDK（这会下载 SDK 工具）
-          buildozer android update || true
-          
-          # SDK 已下载，现在接受所有许可证
-          SDK_DIR="{HOME}/.buildozer/android/platform/android-sdk"
-          if [ -f "{SDK_DIR}/tools/bin/sdkmanager" ]; then
-            yes | {SDK_DIR}/tools/bin/sdkmanager --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
-            yes | {SDK_DIR}/tools/bin/sdkmanager --sdk_root={SDK_DIR} "build-tools;34.0.0" 2>/dev/null || true
-          fi
-          if [ -d "{SDK_DIR}/cmdline-tools" ]; then
-            CMDLINE_TOOLS=(find {SDK_DIR}/cmdline-tools -name "sdkmanager" -type f 2>/dev/null | head -1)
-            if [ -n "{CMDLINE_TOOLS}" ]; then
-              yes | {CMDLINE_TOOLS} --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
-            fi
-          fi
-          
-          # 清除缓存（避免上次失败的数据干扰）
-          rm -rf .buildozer/android/platform/build-arm64-v8a_armeabi-v7a
-          
-          # 安装 libtool 宏（解决 LT_SYS_SYMBOL_USCORE）
-          sudo mkdir -p /usr/local/share/aclocal
-          sudo cp /usr/share/aclocal/libtool.m4 /usr/local/share/aclocal/ 2>/dev/null || true
-          sudo cp /usr/share/aclocal/*.m4 /usr/local/share/aclocal/ 2>/dev/null || true
-          libtoolize --force 2>/dev/null || true
-          
-          # 正式构建 APK
+          # 清除缓存和降级 setuptools
+          rm -rf .buildozer/android/platform/build-*
+          pip install "setuptools<72" --upgrade
+          # 构建 APK
           buildozer android debug
         env:
           BUILD_RUNNING_ON_CI: "1"
