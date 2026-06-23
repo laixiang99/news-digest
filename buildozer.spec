@@ -29,7 +29,7 @@ version.code = 1
 android.api = 31
 
 # 目标 SDK 版本
-android.api = 33
+# target sdk (handled by p4a)
 
 android.accept_sdk_license = True
 
