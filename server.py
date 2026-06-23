@@ -23,12 +23,74 @@ try:
     from flask_cors import CORS
 except ImportError:
     print("需要安装依赖库，请运行：")
-    print("   pip install flask flask-cors requests beautifulsoup4 feedparser")
+    print("   pip install flask flask-cors requests beautifulsoup4 # feedparser 已替换为标准库实现")
     sys.exit(1)
 
 import requests
 from bs4 import BeautifulSoup
-import feedparser as fp
+# 使用标准库 xml.etree.ElementTree 替代 # feedparser 已替换为标准库实现
+import xml.etree.ElementTree as ET
+import logging
+import re
+from email.utils import parsedate_to_datetime
+
+def parse_feed(url):
+    """简易 RSS/Atom 解析器（标准库实现）"""
+    try:
+        resp = requests.get(url, timeout=15, headers={"User-Agent": "NewsDigest/1.0"})
+        resp.raise_for_status()
+        root = ET.fromstring(resp.text)
+        
+        ns = {"atom": "http://www.w3.org/2005/Atom"}
+        entries = []
+        
+        # 尝试 Atom
+        items = root.findall(".//atom:entry", ns)
+        if items:
+            for item in items[:10]:
+                title_el = item.find("atom:title", ns)
+                link_el = item.find("atom:link", ns)
+                summary_el = item.find("atom:summary", ns) or item.find("atom:content", ns)
+                published_el = item.find("atom:published", ns) or item.find("atom:updated", ns)
+                
+                title = title_el.text if title_el is not None else ""
+                link = link_el.attrib.get("href", "") if link_el is not None else ""
+                summary = summary_el.text if summary_el is not None else ""
+                published = published_el.text if published_el is not None else ""
+                
+                entries.append(SimpleEntry(title=title, link=link, summary=summary, published=published))
+            return SimpleFeed(entries=entries, bozo=False)
+        
+        # 尝试 RSS 2.0
+        items = root.findall(".//item")
+        channel = root.find(".//channel")
+        for item in items[:10]:
+            title = _get_text(item, "title")
+            link = _get_text(item, "link")
+            desc = _get_text(item, "description")
+            pubdate = _get_text(item, "pubDate")
+            entries.append(SimpleEntry(title=title, link=link, summary=desc, published=pubdate))
+        
+        return SimpleFeed(entries=entries, bozo=(len(entries) == 0))
+    except Exception as e:
+        print(f"  parse_feed error for {url}: {e}")
+        return SimpleFeed(entries=[], bozo=True)
+
+def _get_text(el, tag):
+    child = el.find(tag)
+    return child.text if child is not None and child.text else ""
+
+class SimpleEntry:
+    def __init__(self, title="", link="", summary="", published=""):
+        self.title = title
+        self.link = link
+        self.summary = summary
+        self.published = published
+
+class SimpleFeed:
+    def __init__(self, entries=None, bozo=False):
+        self.entries = entries or []
+        self.bozo = bozo
 
 # ============================================================
 # 第一部分：配置
@@ -126,7 +188,7 @@ def save_config(updates: dict):
 def fetch_rss(url, source_name, timeout=15):
     articles = []
     try:
-        feed = fp.parse(url)
+        feed = parse_feed(url)
         if feed.bozo and not feed.entries:
             return articles
         for entry in feed.entries[:10]:
