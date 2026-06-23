@@ -45,11 +45,25 @@ jobs:
         run: |
           mkdir -p .buildozer
 
+      - name: 接受 Android SDK 许可证
+        run: |
+          # 创建 licenses 目录并预接受所有 Android SDK 许可证
+          SDK_DIR="{HOME}/.buildozer/android/platform/android-sdk"
+          if [ -d "{SDK_DIR}/cmdline-tools/latest/bin" ]; then
+            yes | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+            yes | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" 2>/dev/null || true
+          fi
+          # 同时接受通过环境变量方式
+          echo "y" | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
+
       - name: 构建 APK
         run: |
           buildozer android debug
         env:
           BUILD_RUNNING_ON_CI: "1"
+          ANDROID_SDK_HOME: /home/runner/.buildozer/android/platform/android-sdk
+          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
 
       - name: 上传 APK
         uses: actions/upload-artifact@v5
