@@ -35,7 +35,7 @@ jobs:
             python3-pip autoconf libtool \
             libffi-dev libssl-dev libxml2-dev libxslt1-dev \
             libncurses5-dev ccache \
-            libtool-bin automake cmake curl wget
+            libtool-bin automake autoconf-archive cmake curl wget
 
       - name: 安装 Buildozer & Cython
         run: |
@@ -77,6 +77,12 @@ jobs:
           
           # 清除缓存（避免上次失败的数据干扰）
           rm -rf .buildozer/android/platform/build-arm64-v8a_armeabi-v7a
+          
+          # 安装 libtool 宏（解决 LT_SYS_SYMBOL_USCORE）
+          sudo mkdir -p /usr/local/share/aclocal
+          sudo cp /usr/share/aclocal/libtool.m4 /usr/local/share/aclocal/ 2>/dev/null || true
+          sudo cp /usr/share/aclocal/*.m4 /usr/local/share/aclocal/ 2>/dev/null || true
+          libtoolize --force 2>/dev/null || true
           
           # 正式构建 APK
           buildozer android debug
