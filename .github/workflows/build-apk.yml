@@ -60,7 +60,7 @@ jobs:
       - name: 构建 APK
         run: |
           # 清除缓存和降级 setuptools
-          rm -rf .buildozer/android/platform/build-*
+          rm -rf .buildozer/android/platform/build-* ~/.gradle/caches/
           pip install "setuptools<72" wheel --upgrade
           export PIP_NO_BUILD_ISOLATION=0
           # 构建 APK
