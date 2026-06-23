@@ -75,6 +75,9 @@ jobs:
             fi
           fi
           
+          # 清除缓存（避免上次失败的数据干扰）
+          rm -rf .buildozer/android/platform/build-arm64-v8a_armeabi-v7a
+          
           # 正式构建 APK
           buildozer android debug
         env:
