@@ -68,7 +68,6 @@ android.filename = 新闻归纳助手
 android.java_version = 17
 
 # 固定 build-tools 版本（避免最新的 build-tools 37 许可证问题）
-android.build_tools_version = 34.0.0
 
 # 开启日志
 android.logcat_filter_whitelist = python, flask
