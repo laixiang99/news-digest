@@ -45,25 +45,40 @@ jobs:
         run: |
           mkdir -p .buildozer
 
-      - name: 接受 Android SDK 许可证
+      - name: 预接受 Android SDK 许可证
         run: |
-          # 创建 licenses 目录并预接受所有 Android SDK 许可证
-          SDK_DIR="{HOME}/.buildozer/android/platform/android-sdk"
-          if [ -d "{SDK_DIR}/cmdline-tools/latest/bin" ]; then
-            yes | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
-            yes | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" 2>/dev/null || true
-          fi
-          # 同时接受通过环境变量方式
-          echo "y" | {SDK_DIR}/cmdline-tools/latest/bin/sdkmanager --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
+          # 创建标准 Android 许可证文件（避免 sdkmanager 交互式询问）
+          mkdir -p ~/.android/licenses
+          # android-sdk-license 的已接受哈希值
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.android/licenses/android-sdk-license
+          echo "✅ 许可证已预接受"
+          
+          # 安装 expect 用于处理交互式提示
+          sudo apt-get install -y -qq expect 2>/dev/null || true
 
       - name: 构建 APK
         run: |
+          # 先运行 buildozer 初始化 SDK（这会下载 SDK 工具）
+          buildozer android update || true
+          
+          # SDK 已下载，现在接受所有许可证
+          SDK_DIR="{HOME}/.buildozer/android/platform/android-sdk"
+          if [ -f "{SDK_DIR}/tools/bin/sdkmanager" ]; then
+            yes | {SDK_DIR}/tools/bin/sdkmanager --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
+            yes | {SDK_DIR}/tools/bin/sdkmanager --sdk_root={SDK_DIR} "build-tools;34.0.0" 2>/dev/null || true
+          fi
+          if [ -d "{SDK_DIR}/cmdline-tools" ]; then
+            CMDLINE_TOOLS=(find {SDK_DIR}/cmdline-tools -name "sdkmanager" -type f 2>/dev/null | head -1)
+            if [ -n "{CMDLINE_TOOLS}" ]; then
+              yes | {CMDLINE_TOOLS} --sdk_root={SDK_DIR} --licenses 2>/dev/null || true
+            fi
+          fi
+          
+          # 正式构建 APK
           buildozer android debug
         env:
           BUILD_RUNNING_ON_CI: "1"
-          ANDROID_SDK_HOME: /home/runner/.buildozer/android/platform/android-sdk
-          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
-          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
 
       - name: 上传 APK
         uses: actions/upload-artifact@v5
