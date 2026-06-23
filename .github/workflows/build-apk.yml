@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 📱 自动构建 APK (使用 Buildozer + Python-for-Android)
 # ============================================================
 # 使用方法：
@@ -35,7 +35,7 @@ jobs:
             python3-pip autoconf libtool \
             libffi-dev libssl-dev libxml2-dev libxslt1-dev \
             libncurses5-dev ccache \
-            automake cmake curl wget
+            libtool-bin automake cmake curl wget
 
       - name: 安装 Buildozer & Cython
         run: |
