@@ -34,7 +34,7 @@ jobs:
             git zip unzip openjdk-17-jdk \
             python3-pip autoconf libtool \
             libffi-dev libssl-dev libxml2-dev libxslt1-dev \
-            libncurses5-dev ccache libtinfo5 libncurses5 \
+            libncurses5-dev ccache \
             automake cmake curl wget
 
       - name: 安装 Buildozer & Cython
