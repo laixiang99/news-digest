@@ -32,17 +32,17 @@ android.api = 29
 android.api_level = 33
 
 # Android NDK 版本
-android.ndk = 25b
+android.ndk = 27c
 
 # 支持的架构
 android.archs = arm64-v8a, armeabi-v7a
 
 # 权限
 android.permissions = INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE
-android.gradle_dependencies = 'org.java-websocket:Java-WebSocket:1.5.3'
+# android.gradle_dependencies =
 
 # 应用图标
-android.icon = static/icons/icon.svg
+android.icon = static/icons/icon-512.png
 
 # 允许 HTTP 明文 (本地通信需要)
 android.manifest.android_uses_cleartext_traffic = True
@@ -51,7 +51,7 @@ android.manifest.android_uses_cleartext_traffic = True
 android.use_sdl2 = True
 
 # 包含的 Python 模块
-requirements = python3,flask,flask-cors,requests,beautifulsoup4,feedparser,kivy,pyjnius,android
+requirements = python3,flask,flask-cors,requests,beautifulsoup4,feedparser,kivy
 
 # 排除不必要的模块减小 APK 体积
 android.exclude_so = x86, x86_64
@@ -84,5 +84,6 @@ warn_on_root = True
 
 # 在 CI 上自动接受 Android 许可
 android.accept_sdk_license = True
+
 
 
