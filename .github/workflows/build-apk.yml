@@ -63,8 +63,10 @@ jobs:
           rm -rf .buildozer/android/platform/build-* ~/.gradle/caches/
           pip install "setuptools<72" wheel --upgrade
           export PIP_NO_BUILD_ISOLATION=0
+          unset GRADLE_HOME 2>/dev/null || true
+          export GRADLE_HOME=""
           # 构建 APK
-          buildozer android debug
+          JAVA_OPTS="-Dfile.encoding=UTF-8" ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk" buildozer android debug
         env:
           BUILD_RUNNING_ON_CI: "1"
 
