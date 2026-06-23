@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>📰 新闻归纳助手 — 安装使用指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            padding: 30px 20px;
+            color: #2c3e50;
+        }
+        .container { max-width: 780px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        h1 { font-size: 28px; margin-bottom: 10px; }
+        h2 { font-size: 22px; margin: 28px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #eee; }
+        h3 { font-size: 17px; margin: 18px 0 10px; color: #2c3e50; }
+        .step-num {
+            display: inline-block;
+            width: 28px; height: 28px;
+            background: #3498db; color: white;
+            border-radius: 50%;
+            text-align: center; line-height: 28px;
+            font-weight: 700; font-size: 14px;
+            margin-right: 8px;
+        }
+        p { line-height: 1.7; margin: 8px 0; font-size: 15px; }
+        .box {
+            background: #f0f7ff;
+            border-left: 4px solid #3498db;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .box.warning {
+            background: #fff8e6;
+            border-left-color: #f39c12;
+        }
+        .box.success {
+            background: #eafaf1;
+            border-left-color: #27ae60;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: "Consolas", "Courier New", monospace;
+        }
+        .img-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            color: #999;
+            margin: 12px 0;
+        }
+        ol li { margin: 10px 0; line-height: 1.7; font-size: 15px; }
+        ul li { margin: 6px 0; line-height: 1.6; font-size: 15px; }
+        a { color: #3498db; }
+        hr { border: none; border-top: 1px solid #ecf0f1; margin: 24px 0; }
+        .footer { text-align: center; color: #bdc3c7; font-size: 13px; padding: 20px; }
+        @media (max-width: 600px) {
+            body { padding: 15px 10px; }
+            .card { padding: 18px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+<meta name="theme-color" content="#1a73e8">
+<link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+<div class="container">
+
+    <div class="card" style="text-align:center;">
+        <h1>📰 每日新闻归纳助手</h1>
+        <p style="color:#7f8c8d; font-size:16px;">安装使用指南 · 一步步教你用起来</p>
+        <p style="color:#95a5a6; font-size:13px; margin-top:6px;">适合零基础用户 · 全程无需写代码</p>
+    </div>
+
+    <!-- 目录 -->
+    <div class="card">
+        <h2>📋 目录</h2>
+        <ol>
+            <li><a href="#step1">安装 Python（只需做一次）</a></li>
+            <li><a href="#step2">获取 DeepSeek API 密钥</a></li>
+            <li><a href="#step3">运行程序</a></li>
+            <li><a href="#step4">查看每日新闻榜单</a></li>
+            <li><a href="#faq">常见问题</a></li>
+        </ol>
+    </div>
+
+    <!-- 第一步 -->
+    <div class="card" id="step1">
+        <h2><span class="step-num">1</span> 安装 Python</h2>
+        <p>Python 是运行这个程序需要的"环境"，按以下步骤安装：</p>
+
+        <h3>🪟 Windows 用户</h3>
+        <ol>
+            <li><strong>打开微软应用商店</strong> — 点开始菜单，搜索"Microsoft Store"并打开</li>
+            <li><strong>搜索 Python</strong> — 在商店右上角搜索框输入 <code>Python</code></li>
+            <li><strong>安装 Python 3.12</strong> — 找到 <strong>Python 3.12</strong>，点击"获取"或"安装"</li>
+        </ol>
+
+        <div class="box success">
+            ✅ <strong>安装完成后验证</strong>：按下键盘 <code>Win + R</code>，输入 <code>cmd</code> 回车，在黑窗口中输入 <code>python --version</code>，如果显示 <code>Python 3.12.x</code> 就代表安装成功。
+        </div>
+    </div>
+
+    <!-- 第二步 -->
+    <div class="card" id="step2">
+        <h2><span class="step-num">2</span> 获取 DeepSeek API 密钥</h2>
+        <p>AI 需要调用 DeepSeek（深度求索）的服务来帮我们分析新闻。费用非常便宜：<strong>分析一次大约 0.01~0.05 元</strong>，每天一次一个月不到 2 块钱。</p>
+
+        <ol>
+            <li><strong>打开注册页面</strong>：<a href="https://platform.deepseek.com/" target="_blank">https://platform.deepseek.com/</a>（点击链接即可打开）</li>
+            <li><strong>注册账号</strong>：用手机号或邮箱注册并登录</li>
+            <li><strong>进入 API Keys 页面</strong>：登录后，在左侧菜单找到 <strong>API Keys</strong></li>
+            <li><strong>创建密钥</strong>：点击 <strong>「创建 API Key」</strong> 按钮</li>
+            <li><strong>复制密钥</strong>：会生成一串以 <code>sk-</code> 开头的字符，点旁边的复制按钮</li>
+            <li><strong>充值（可选）</strong>：新账号通常有赠送额度，不够用了可以在"余额"页面充值，最低 10 元能用很久</li>
+        </ol>
+
+        <div class="box warning">
+            ⚠️ <strong>保存好密钥</strong>：这个密钥就像密码一样，不要发给别人。如果密钥泄露，可以在 DeepSeek 网站上删除重新生成。
+        </div>
+    </div>
+
+    <!-- 第三步 -->
+    <div class="card" id="step3">
+        <h2><span class="step-num">3</span> 运行程序</h2>
+        <p>所有文件都在 <strong>「新闻归纳助手」</strong> 文件夹中，你会看到这几个文件：</p>
+
+        <div class="box">
+            📁 新闻归纳助手/<br>
+            ├── 📄 <strong>启动新闻助手.bat</strong>  ← <strong>双击这个文件运行</strong><br>
+            ├── 📄 news_digest.py          ← 主程序（不用管）<br>
+            ├── 📄 config.json             ← 配置文件（存放密钥）<br>
+            └── 📄 使用指南.html           ← 就是这个页面
+        </div>
+
+        <h3>▶️ 首次运行步骤</h3>
+        <ol>
+            <li><strong>双击「启动新闻助手.bat」</strong></li>
+            <li>程序会自动安装所需的依赖包（只需一次），稍等片刻</li>
+            <li>程序会问你要 <strong>DeepSeek API 密钥</strong>，把上一步复制的密钥粘贴进去，回车</li>
+            <li>程序开始抓取新闻并用 AI 分析，等待 1~2 分钟</li>
+            <li>分析完成后，浏览器会自动打开，展示今天的新闻榜单！</li>
+        </ol>
+
+        <h3>📅 每天怎么用？</h3>
+        <p><strong>以后每天只需双击「启动新闻助手.bat」</strong>，等一两分钟，浏览器就会自动弹出当天的新闻榜单。<br>
+        什么都不用改，密钥已经保存好了。</p>
+    </div>
+
+    <!-- 第四步 -->
+    <div class="card" id="step4">
+        <h2><span class="step-num">4</span> 查看每日新闻榜单</h2>
+        <p>运行程序后，会自动在浏览器中打开当天的新闻榜单，大概长这样：</p>
+
+        <div class="box" style="background: #f8f9fa; border-left-color: #95a5a6;">
+            <p>📰 <strong>每日新闻榜单 — 2026年6月23日</strong></p>
+            <p style="color: #7f8c8d; font-size: 13px;">AI 智能精选 · 4 个分类 · 共 32 条精选新闻</p>
+            <hr style="margin: 10px 0;">
+            <p><strong>🏛️ 政治（8条）</strong></p>
+            <p>🥇 新闻标题一<br>　📌 来源：新华网 | 💡 AI点评：影响重大</p>
+            <p>🥈 新闻标题二<br>　📌 来源：人民网 | 💡 AI点评：关注度高</p>
+            <hr style="margin: 10px 0;">
+            <p><strong>💻 科技（10条）</strong></p>
+            <p>🥇 新闻标题一<br>　📌 来源：36氪 | 💡 AI点评：行业热点</p>
+            <p style="color: #95a5a6; font-size: 12px;">……后面还有 AI 分类和股票分类……</p>
+        </div>
+
+        <p>每条新闻都带有原文链接，<strong>点击标题即可跳转阅读全文</strong>。</p>
+
+        <div class="box success">
+            💡 <strong>小提示</strong>：生成的 HTML 文件也会保存在文件夹中，文件名类似 <code>新闻榜单_2026-06-23.html</code>，你可以收藏起来或者分享给朋友。
+        </div>
+    </div>
+
+    <!-- 常见问题 -->
+    <div class="card" id="faq">
+        <h2>❓ 常见问题</h2>
+
+        <h3>Q: 运行时报错"python 不是内部或外部命令"</h3>
+        <p>说明 Python 没有安装成功。重新按照第一步的教程，从微软应用商店安装 Python。</p>
+
+        <h3>Q: 抓不到新闻 / 全是英文新闻</h3>
+        <p>部分 RSS 源可能被屏蔽或改地址。我会持续更新新闻源，你也可以把这个问题告诉我，我来更新。</p>
+
+        <h3>Q: AI 分析太慢怎么办？</h3>
+        <p>第一次运行会安装依赖库稍慢。后续运行一般在 30 秒到 2 分钟之间，取决于新闻数量。如果超过 3 分钟，可能是网络问题，重新运行一次试试。</p>
+
+        <h3>Q: DeepSeek API 怎么充值？</h3>
+        <p>登录 <a href="https://platform.deepseek.com/" target="_blank">DeepSeek 平台</a> → 左侧「余额」→ 点「充值」，支持支付宝。充 10 元大概能用几个月。</p>
+
+        <h3>Q: 我想修改新闻分类或增加分类</h3>
+        <p>可以告诉我，我来帮你改。不改代码也能调整。</p>
+
+        <h3>Q: 生成的文件在哪里？</h3>
+        <p>就在「新闻归纳助手」文件夹里，文件名是 <code>新闻榜单_2026-06-23.html</code> 这样的格式，双击就能在浏览器打开。</p>
+    </div>
+
+    <div class="card" style="text-align:center;">
+        <p style="font-size:18px;">🎉 以上就是全部内容！</p>
+        <p style="color:#7f8c8d; margin-top:8px;">按步骤操作，15 分钟内就能用上。<br>有任何问题随时问我，我来帮你搞定。</p>
+    </div>
+
+    <div class="footer">
+        📰 每日新闻归纳助手 · 由 AI Coding Agent 生成
+    </div>
+
+</div>
+</body>
+</html>

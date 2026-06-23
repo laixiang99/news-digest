@@ -1,0 +1,6 @@
+﻿flask>=3.0
+flask-cors>=4.0
+requests>=2.31
+beautifulsoup4>=4.12
+feedparser>=6.0
+gunicorn>=21.0

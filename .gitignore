@@ -1,0 +1,33 @@
+﻿# Byte-compiled
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Buildozer
+*.apk
+*.aab
+bin/
+.buildozer/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config with keys (keep template)
+config.json
+
+# ENV
+.env
+.env.local
+
+# Node (if used temporarily)
+node_modules/

@@ -1,0 +1,795 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<title>每日新闻归纳助手</title>
+<style>
+/* ===== CSS 变量 ===== */
+:root {
+  --primary: #1a73e8;
+  --primary-dark: #0d47a1;
+  --primary-light: #e8f0fe;
+  --bg: #f5f7fa;
+  --card-bg: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #666;
+  --text-light: #999;
+  --border: #eee;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 20px rgba(0,0,0,0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-height: 56px;
+}
+
+/* ===== 深色模式 ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f1a;
+    --card-bg: #1a1a2e;
+    --text: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-light: #71717a;
+    --border: #27272a;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
+    --primary-light: #1a1a3e;
+  }
+}
+
+/* ===== 全局重置 ===== */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding-top: calc(var(--safe-top) + var(--nav-height));
+  padding-bottom: calc(var(--safe-bottom) + 80px);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+
+/* ===== 顶部导航 ===== */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  color: white;
+  box-shadow: 0 2px 20px rgba(26,115,232,0.3);
+}
+.header-top { display:flex; align-items:center; justify-content:space-between; }
+.header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.header .subtitle { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.header-btn {
+  width: 36px; height: 36px; border: none; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: white; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  backdrop-filter: blur(4px);
+}
+.header-btn:active { background: rgba(255,255,255,0.3); }
+
+/* ===== 分类标签导航 ===== */
+.category-nav {
+  position: fixed; top: calc(var(--safe-top) + var(--nav-height)); left: 0; right: 0; z-index: 99;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  display: flex;
+  padding: 0 12px;
+  transition: background 0.3s;
+}
+.category-nav::-webkit-scrollbar { display:none; }
+.cat-tab {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  transition: all 0.25s;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+.cat-tab .icon { margin-right: 4px; }
+.cat-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+.cat-tab:active { opacity: 0.7; }
+.cat-tab .badge {
+  display: inline-block;
+  font-size: 10px;
+  background: var(--primary);
+  color: white;
+  border-radius: 10px;
+  padding: 1px 6px;
+  margin-left: 4px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ===== 内容区域 ===== */
+.content { max-width: 800px; margin: 0 auto; padding: 12px 12px 0; }
+
+/* ===== 日期横幅 ===== */
+.date-banner {
+  text-align: center;
+  padding: 14px 0 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+.date-banner strong { color: var(--text); font-weight: 600; }
+
+/* ===== 新闻卡片 ===== */
+.news-grid { display: flex; flex-direction: column; gap: 10px; }
+.news-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all 0.3s;
+  position: relative;
+  animation: cardIn 0.35s ease-out both;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.news-card:active { transform: scale(0.98); }
+.news-card-inner { padding: 14px 16px; cursor: pointer; }
+.news-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-meta {
+  display: flex; align-items: center;
+  gap: 8px; margin-top: 8px; font-size: 11px;
+  color: var(--text-light);
+}
+.news-source {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.news-highlight {
+  display: inline-block;
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  color: #e65100;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+  font-weight: 500;
+}
+@media (prefers-color-scheme: dark) {
+  .news-highlight {
+    background: linear-gradient(135deg, #3e2723, #4e342e);
+    color: #ffcc80;
+  }
+}
+.news-ai-badge {
+  display: inline-flex; align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; font-size: 10px;
+  padding: 2px 7px; border-radius: 4px;
+  font-weight: 600;
+  gap: 2px;
+}
+
+/* ===== 分类标题 ===== */
+.section-header {
+  display: flex; align-items: center;
+  padding: 18px 4px 10px;
+  gap: 8px;
+  position: sticky; top: calc(var(--safe-top) + var(--nav-height) + 41px);
+  background: var(--bg);
+  z-index: 10;
+  transition: background 0.3s;
+}
+.section-header .cat-icon { font-size: 20px; }
+.section-header .cat-name { font-size: 17px; font-weight: 700; }
+.section-header .cat-count {
+  font-size: 12px; color: var(--text-light);
+  margin-left: auto;
+}
+
+/* ===== 加载状态 ===== */
+.loading-container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 20px;
+}
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin-top: 12px; color: var(--text-secondary); font-size: 14px; }
+
+/* ===== 下拉刷新提示 ===== */
+.pull-tip {
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  display: none;
+}
+.pull-tip.show { display: block; }
+
+/* ===== 空状态 ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+.empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ===== 错误状态 ===== */
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+.error-state .emoji { font-size: 40px; margin-bottom: 10px; }
+.error-state p { font-size: 14px; margin-bottom: 16px; }
+.btn-retry {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-retry:active { transform: scale(0.95); opacity: 0.8; }
+
+/* ===== API 密钥配置弹窗 ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card-bg);
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 500px;
+  padding: 24px 20px calc(var(--safe-bottom) + 20px);
+  animation: slideUp 0.3s ease;
+  max-height: 80vh; overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal h2 { font-size: 18px; margin-bottom: 4px; }
+.modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+.modal input {
+  width: 100%; padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.modal input:focus { border-color: var(--primary); }
+.modal .btn-group { display: flex; gap: 10px; margin-top: 16px; }
+.modal .btn-group button { flex: 1; }
+.btn-primary, .btn-secondary {
+  padding: 12px; border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  text-align: center; transition: all 0.2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-secondary:active { opacity: 0.7; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.modal .hint { font-size: 11px; color: var(--text-light); margin-top: 8px; }
+
+/* ===== Toast 提示 ===== */
+.toast {
+  position: fixed; bottom: calc(var(--safe-bottom) + 100px);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: white;
+  padding: 10px 20px; border-radius: 12px;
+  font-size: 13px; z-index: 300;
+  display: none;
+  animation: toastIn 0.3s ease;
+  backdrop-filter: blur(8px);
+  max-width: 80vw; text-align: center;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+.toast.show { display: block; }
+.toast.error { background: rgba(220,38,38,0.9); }
+.toast.success { background: rgba(22,163,74,0.9); }
+
+/* ===== 底部操作栏 ===== */
+.fab {
+  position: fixed; bottom: calc(var(--safe-bottom) + 20px);
+  right: 20px; z-index: 50;
+  width: 52px; height: 52px;
+  border: none; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; font-size: 22px;
+  box-shadow: 0 4px 16px rgba(26,115,232,0.4);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s;
+}
+.fab:active { transform: scale(0.9); }
+.fab.refreshing { animation: fabSpin 1s linear infinite; }
+@keyframes fabSpin { to { transform: rotate(360deg); } }
+
+/* ===== 进度条 ===== */
+.progress-bar {
+  position: fixed; top: calc(var(--safe-top) + var(--nav-height));
+  left: 0; right: 0; height: 3px; z-index: 101;
+  background: transparent;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #667eea);
+  transition: width 0.3s ease;
+  width: 0%;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ===== PWA 安装横幅 ===== */
+.install-banner {
+  position: fixed; bottom: calc(var(--safe-bottom) + 80px);
+  left: 12px; right: 12px; z-index: 150;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+.install-content {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+}
+.install-icon { font-size: 28px; }
+.install-text { flex: 1; min-width: 0; }
+.install-text strong { display: block; font-size: 14px; color: var(--text); }
+.install-text span { display: block; font-size: 11px; color: var(--text-secondary); }
+.install-btn {
+  background: var(--primary); color: white; border: none;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.install-btn:active { transform: scale(0.95); }
+.install-close {
+  background: none; border: none; color: var(--text-light);
+  font-size: 16px; cursor: pointer; padding: 4px;
+}
+
+/* ===== 响应式 ===== */
+@media (min-width: 600px) {
+  .content { padding: 16px 24px 0; }
+  .news-card-inner { padding: 18px 20px; }
+  .news-title { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<!-- ===== 顶部导航 ===== -->
+<header class="header">
+  <div class="header-top">
+    <div>
+      <h1>📰 新闻归纳</h1>
+      <div class="subtitle">AI 智能精选 · 每日更新</div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="configBtn" title="设置">⚙️</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 进度条 ===== -->
+<div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+
+<!-- ===== 分类导航 ===== -->
+<nav class="category-nav" id="categoryNav"></nav>
+
+<!-- ===== 内容区 ===== -->
+<main class="content" id="content">
+  <div class="loading-container" id="loadingView">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在获取最新新闻…</div>
+  </div>
+</main>
+
+<!-- ===== 悬浮刷新按钮 ===== -->
+<button class="fab" id="fabBtn" title="刷新">🔄</button>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+
+<!-- ===== PWA 安装提示 ===== -->
+<div class="install-banner" id="installBanner" style="display:none">
+  <div class="install-content">
+    <div class="install-icon">📰</div>
+    <div class="install-text">
+      <strong>安装「新闻归纳助手」</strong>
+      <span>添加到桌面，随时看新闻</span>
+    </div>
+    <button class="install-btn" id="installBtn">安装</button>
+    <button class="install-close" id="installClose">✕</button>
+  </div>
+</div>
+<!-- ===== API 配置弹窗 ===== -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h2>⚙️ 配置 API 密钥</h2>
+    <p>需要 DeepSeek API 密钥才能使用 AI 总结功能</p>
+    <input type="password" id="apiKeyInput" placeholder="输入你的 DeepSeek API Key (sk-...)" autocomplete="off">
+    <div class="hint">💡 可在 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener" style="color:var(--primary)">platform.deepseek.com</a> 免费获取</div>
+    <div class="btn-group">
+      <button class="btn-secondary" id="cancelKeyBtn">取消</button>
+      <button class="btn-primary" id="saveKeyBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// ===== 状态管理 =====
+const state = {
+  categories: {},
+  allNews: {},
+  activeCategory: null,
+  dateStr: "",
+  isLoading: false,
+  aiConfigured: false,
+};
+
+// ===== DOM 引用 =====
+const $ = (id) => document.getElementById(id);
+const content = $("content");
+const categoryNav = $("categoryNav");
+const loadingView = $("loadingView");
+const fabBtn = $("fabBtn");
+const toast = $("toast");
+const progressFill = $("progressFill");
+
+// ===== 工具函数 =====
+function showToast(msg, type = "") {
+  toast.textContent = msg;
+  toast.className = "toast show " + type;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.className = "toast"; }, 2500);
+}
+
+function setProgress(pct) {
+  progressFill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+}
+
+function formatTime(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+  } catch { return ""; }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== API 调用 =====
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { "Content-Type": "application/json" },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const resp = await fetch(path, opts);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: resp.statusText }));
+    throw new Error(err.error || "请求失败");
+  }
+  return resp.json();
+}
+
+// ===== 检查 API 密钥状态 =====
+async function checkApiKeyStatus() {
+  try {
+    const data = await api("GET", "/api/config/key/status");
+    state.aiConfigured = data.configured;
+    return data.configured;
+  } catch { return false; }
+}
+
+// ===== 获取新闻分类 =====
+async function fetchSources() {
+  const data = await api("GET", "/api/sources");
+  state.categories = data;
+}
+
+// ===== 获取新闻 =====
+async function fetchNews(useAi = true) {
+  setProgress(10);
+  const data = await api("POST", "/api/news/fetch", { use_ai: useAi });
+  setProgress(70);
+  state.allNews = data.categories;
+  state.dateStr = data.date_str;
+  state.aiConfigured = data.ai_used;
+  return data;
+}
+
+// ===== 渲染分类导航 =====
+function renderCategoryNav() {
+  const keys = Object.keys(state.categories);
+  if (keys.length === 0) return;
+  if (!state.activeCategory) state.activeCategory = keys[0];
+  let html = "";
+  for (const cat of keys) {
+    const c = state.categories[cat];
+    const count = (state.allNews[cat] || []).length;
+    const active = cat === state.activeCategory ? "active" : "";
+    html += `<div class="cat-tab ${active}" data-cat="${escapeHtml(cat)}" onclick="switchCategory('${escapeHtml(cat)}')">
+      <span class="icon">${c.icon || "📰"}</span>${cat}
+      <span class="badge">${count}</span>
+    </div>`;
+  }
+  categoryNav.innerHTML = html;
+}
+
+// ===== 切换分类 =====
+function switchCategory(cat) {
+  state.activeCategory = cat;
+  document.querySelectorAll(".cat-tab").forEach(el => {
+    el.classList.toggle("active", el.dataset.cat === cat);
+  });
+  renderNews();
+}
+
+// ===== 渲染新闻内容 =====
+function renderNews() {
+  const cat = state.activeCategory;
+  if (!cat || !state.allNews[cat]) {
+    content.innerHTML = `<div class="empty-state"><div class="emoji">📭</div><p>暂无新闻</p></div>`;
+    return;
+  }
+  const articles = state.allNews[cat];
+  const catInfo = state.categories[cat] || {};
+  const isAi = state.aiConfigured && articles.some(a => a.highlight || a.summary);
+
+  let html = `<div class="date-banner">📅 <strong>${escapeHtml(state.dateStr)}</strong> · AI 智能精选</div>`;
+
+  // 分类标题
+  html += `<div class="section-header">
+    <span class="cat-icon">${catInfo.icon || "📰"}</span>
+    <span class="cat-name">${escapeHtml(cat)}</span>
+    <span class="cat-count">${articles.length} 条</span>
+  </div>`;
+
+  // 新闻卡片
+  html += `<div class="news-grid">`;
+  let delay = 0;
+  for (const item of articles) {
+    const title = escapeHtml(item.title || "");
+    const summary = escapeHtml(item.summary || "");
+    const highlight = escapeHtml(item.highlight || "");
+    const source = escapeHtml(item.source || "");
+    const link = item.link || "";
+    const linkAttr = link ? `onclick="window.open('${escapeHtml(link)}','_blank')"` : "";
+    const style = `animation-delay:${delay}s`;
+    delay += 0.04;
+
+    html += `<div class="news-card" style="${style}">
+      <div class="news-card-inner" ${linkAttr}>
+        <div class="news-title">${title}</div>`;
+    if (summary) {
+      html += `<div class="news-summary">${summary}</div>`;
+    }
+    html += `<div class="news-meta">
+      <span class="news-source">${source}</span>`;
+    if (isAi && highlight) {
+      html += `<span class="news-highlight">✨ ${highlight}</span>`;
+    }
+    if (isAi && !highlight) {
+      html += `<span class="news-ai-badge">🤖 AI</span>`;
+    }
+    html += `</div></div></div>`;
+  }
+  html += `</div>`;
+
+  content.innerHTML = html;
+  setProgress(100);
+  setTimeout(() => setProgress(0), 500);
+}
+
+// ===== 加载并渲染全部 =====
+async function loadAll(useAi = true) {
+  if (state.isLoading) return;
+  state.isLoading = true;
+  fabBtn.classList.add("refreshing");
+  content.innerHTML = `<div class="loading-container"><div class="loading-spinner"></div><div class="loading-text">正在获取最新新闻…</div></div>`;
+
+  try {
+    await fetchNews(useAi);
+    renderCategoryNav();
+    renderNews();
+    showToast("✅ 新闻已更新", "success");
+  } catch (err) {
+    content.innerHTML = `<div class="error-state">
+      <div class="emoji">😵</div>
+      <p>${escapeHtml(err.message || "获取新闻失败")}</p>
+      <button class="btn-retry" onclick="loadAll(true)">重新加载</button>
+    </div>`;
+    showToast("❌ " + (err.message || "加载失败"), "error");
+  } finally {
+    state.isLoading = false;
+    fabBtn.classList.remove("refreshing");
+    setProgress(0);
+  }
+}
+
+// ===== 首次加载 =====
+async function init() {
+  try {
+    await fetchSources();
+    state.activeCategory = Object.keys(state.categories)[0] || null;
+    const hasKey = await checkApiKeyStatus();
+    if (!hasKey) {
+      showConfigModal();
+    }
+    await loadAll(true);
+  } catch (err) {
+    console.error("Init error:", err);
+    content.innerHTML = `<div class="error-state">
+      <div class="emoji">📡</div>
+      <p>无法连接到服务器<br><span style="font-size:12px;color:var(--text-light)">请确保服务器已启动</span></p>
+      <button class="btn-retry" onclick="init()">重试</button>
+    </div>`;
+  }
+}
+
+// ===== 配置弹窗 =====
+function showConfigModal() {
+  $("configModal").classList.add("show");
+  $("apiKeyInput").value = "";
+  $("apiKeyInput").focus();
+}
+function hideConfigModal() {
+  $("configModal").classList.remove("show");
+}
+
+$("configBtn").onclick = showConfigModal;
+$("cancelKeyBtn").onclick = hideConfigModal;
+$("saveKeyBtn").onclick = async function() {
+  const key = $("apiKeyInput").value.trim();
+  if (!key) { showToast("请输入 API 密钥", "error"); return; }
+  if (!key.startsWith("sk-")) { showToast("密钥格式错误，应以 sk- 开头", "error"); return; }
+  this.disabled = true;
+  this.textContent = "保存中…";
+  try {
+    await api("POST", "/api/config/key", { key });
+    state.aiConfigured = true;
+    hideConfigModal();
+    showToast("✅ 密钥保存成功", "success");
+    loadAll(true);
+  } catch(err) {
+    showToast("❌ 保存失败: " + (err.message || "未知错误"), "error");
+  } finally {
+    this.disabled = false;
+    this.textContent = "保存";
+  }
+};
+
+// ===== 下拉刷新（触摸） =====
+let touchStartY = 0;
+document.addEventListener("touchstart", (e) => {
+  if (window.scrollY === 0) touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener("touchmove", (e) => {
+  if (touchStartY > 0 && window.scrollY === 0) {
+    const diff = e.touches[0].clientY - touchStartY;
+    if (diff > 80 && !state.isLoading) {
+      touchStartY = 0;
+      loadAll(true);
+    }
+  }
+}, { passive: true });
+
+
+// ===== PWA 安装 =====
+let deferredPrompt = null;
+const installBanner = $("installBanner");
+const installBtn = $("installBtn");
+const installClose = $("installClose");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBanner.style.display = "block";
+});
+
+installBtn.onclick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if (result.outcome === "accepted") {
+    installBanner.style.display = "none";
+    showToast("✅ 已添加至桌面", "success");
+  }
+  deferredPrompt = null;
+};
+
+installClose.onclick = () => {
+  installBanner.style.display = "none";
+};
+
+// 如果用户在手机上但没有显示安装，在设置里加一个"安装到桌面"提示
+// 微信/QQ 浏览器不支持的提示
+if (navigator.userAgent.match(/(MicroMessenger|QQ)/i)) {
+  console.log("请在系统浏览器中打开以安装到桌面");
+}
+
+
+// ===== 刷新按钮 =====
+fabBtn.onclick = () => loadAll(true);
+
+// ===== 初始化 =====
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,26 @@
+﻿{
+  "name": "每日新闻归纳助手",
+  "short_name": "新闻助手",
+  "description": "AI智能新闻归纳，每天3分钟看遍天下事",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#1a73e8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "lang": "zh-CN",
+  "categories": ["news", "lifestyle"]
+}
