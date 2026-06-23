@@ -26,10 +26,10 @@ version = 1.0.0
 version.code = 1
 
 # 最低 SDK 版本 (Android 8.0+)
-android.api = 29
+android.api = 31
 
 # 目标 SDK 版本
-android.api_level = 33
+android.api = 33
 
 android.accept_sdk_license = True
 
