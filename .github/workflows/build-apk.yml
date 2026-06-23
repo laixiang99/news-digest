@@ -78,26 +78,6 @@ jobs:
           name: 新闻归纳助手-APK
           path: bin/*.apk
 
-      - name: 创建 Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: bin/*.apk
-          body: |
-            📱 每日新闻归纳助手 Android APK
-            
-            ## 安装说明
-            - 下载 APK 文件
-            - 在手机上打开安装
-            - 允许「未知来源应用安装」
-            - 打开应用后配置 API 密钥即可使用
-            
-            ## 支持设备
-            - 小米 / 红米 (MIUI/HyperOS)
-            - 华为 (HarmonyOS)
-            - 荣耀 (MagicOS)
-            - OPPO / vivo
-            - 其他 Android 8.0+ 设备
 
       - name: 列出生成的 APK
         run: |
