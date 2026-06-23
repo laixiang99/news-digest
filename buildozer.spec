@@ -31,6 +31,8 @@ android.api = 29
 # 目标 SDK 版本
 android.api_level = 33
 
+android.accept_sdk_license = True
+
 # Android NDK 版本
 android.ndk = 27c
 
@@ -65,6 +67,9 @@ android.filename = 新闻归纳助手
 # 使用 Java 17
 android.java_version = 17
 
+# 固定 build-tools 版本（避免最新的 build-tools 37 许可证问题）
+android.build_tools_version = 34.0.0
+
 # 开启日志
 android.logcat_filter_whitelist = python, flask
 
@@ -83,7 +88,7 @@ bin_dir = ./bin
 warn_on_root = True
 
 # 在 CI 上自动接受 Android 许可
-android.accept_sdk_license = True
+# android.accept_sdk_license = True
 
 
 
